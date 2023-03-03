@@ -47,7 +47,9 @@ import { useCardList } from './assets/data/hooks/useCard';
 ```
 
 那能有什么方式解决这个问题呢，正当我一筹莫展的时候
+
 ![[灵光一现]](https://lf3-cdn-tos.bytescm.com/obj/static/xitu_juejin_web/img/jj_emoji_25.51e6984.png)
+
 忽然想到`vue`源码中[shared](https://github.com/vuejs/core/blob/main/packages/shared/src/index.ts)，虽然他的原意是一个工具包，但是我们可以借鉴这个思路——统一出入口
 
 因为我们是业务开发，并不是`utils`，所以更合适的做法是在每个`assets`文件夹下都写一个出口文件`shared.ts`，看到这里你会想说，这不就是平时的`index.ts`的出口吗，和`shared`有什么关系
@@ -92,11 +94,11 @@ export {
 #### 全局变量
 
 ```js
-const ChildProcess = require('child_process');
-const chalk = require('chalk');
-const fs = require('fs');
-const os = require('os');
-const Path = require('path');
+import ChildProcess from 'node:child_process';
+import chalk from 'chalk';
+import fs from 'node:fs';
+import os from 'node:os';
+import Path from 'node:path';
 const sep = Path.sep;
 /** 最终生成的shared.ts文件集合 */
 const sharedList = new Set();
@@ -116,7 +118,10 @@ const platform = os.platform() === 'win32' ? 'sh' : 'node';
  * @description 递归遍历传入的路径，找到所有assets文件夹的路径
  * @param {string} path 默认是遍历views
  */
-function getAssetsSet(path = `${__dirname}/../src/views`, pathSet = new Set()) {
+export function getAssetsSet(
+  path = `${__dirname}/../src/views`,
+  pathSet = new Set<string>()
+): Set<string> {
   const dirArr = fs.readdirSync(path);
   dirArr.forEach((dir) => {
     const isDirectory = fs.lstatSync(`${path}/${dir}`).isDirectory();
@@ -152,7 +157,11 @@ function getAssetsSet(path = `${__dirname}/../src/views`, pathSet = new Set()) {
  * @param {Set} pathSet ts文件集合
  * @returns {Set} pathSet ts文件集合
  */
-function recursion(parentPath, childDirs, pathSet = new Set()) {
+function recursion(
+  parentPath: string,
+  childDirs: string[],
+  pathSet = new Set<AssetsFile>()
+): Set<AssetsFile> {
   childDirs.forEach((item) => {
     const stat = fs.lstatSync(Path.resolve(parentPath, item));
     // 如果是文件夹
@@ -191,11 +200,11 @@ function recursion(parentPath, childDirs, pathSet = new Set()) {
   return pathSet;
 }
 /** hooksUseWeek 文件夹名+ts文件名(驼峰) */
-function getExportName(parentPath, fileName) {
+function getExportName(parentPath: string, fileName: string) {
   /** 上层文件夹名 */
   const firstName = parentPath.split(sep).pop();
   /** 文件名，不包含文件类型后缀 */
-  const lastName = fileName.split('.').shift();
+  const lastName = fileName.split('.').shift() || '';
   const arr = lastName.split('');
   // 首字母大写
   arr[0] = arr[0].toUpperCase();
@@ -208,11 +217,10 @@ function getExportName(parentPath, fileName) {
 生成代码就很简单了，上面我们已经获取到所有的**ts文件路径和导出的命名**了；这里主要就是截取`/assets`后面的路径，然后拼接好模板字符串
 
 ```js
-/** 生成文件内容 */
-function getContent(pathSet) {
-  let importArr = [];
+function getContent(pathSet: Set<AssetsFile>) {
+  let importArr: string[] = [];
   // 导出的变量名
-  let exportArr = [];
+  let exportArr: string[] = [];
   pathSet.forEach((item) => {
     const index = item.url.search(`${sep}assets`);
     // 解析获取/assets后面的路径 windows和mac的路径开头部分不一致，window以/开头
@@ -238,7 +246,7 @@ export {
  * @description 根据路径遍历assets所有目录创建shared.ts
  * @param { string } targetPath 目标assets路径
  */
-function createShared(targetPath) {
+export function createShared(targetPath: string) {
   // assets的子目录
   const assetsModules = fs.readdirSync(targetPath);
   // 遍历获取所有ts文件
@@ -250,7 +258,6 @@ function createShared(targetPath) {
   fs.writeFileSync(`${targetPath}/shared.ts`, getContent(allTs), 'utf-8');
   sharedList.add(`${targetPath}/shared.ts`);
 }
-
 ```
 
 ### 代码优化
@@ -273,7 +280,7 @@ function createShared(targetPath) {
  * @description 执行函数
  * @param {string[]} dirs 默认遍历整个views
  */
-function run(dirs = getAssetsSet()) {
+export function run(dirs: string[] | Set<string> = getAssetsSet()) {
   sharedList.clear();
   dirs.forEach((dir) => createShared(dir));
   const fileUrls = Array.from(sharedList).join(' ');
@@ -315,12 +322,19 @@ function printWindowsTip() {
 - 在新增、删除的时候，只处理当前的`assets`文件夹重新生成`shared.ts`
 
 ```js
-const { run, getAssetsSet } = require('./shared');
+import { run, getAssetsSet } from './shared';
 
-const chalk = require('chalk');
-const chokidar = require('chokidar');
-const Path = require('path');
-let watcher = null;
+import chalk from 'chalk';
+import chokidar from 'chokidar';
+import Path from 'node:path';
+
+/** 插件配置 */
+export interface PluginOptions {
+  /** 是否展示对已删除文件引用的文件列表 */
+  showDeleted?: boolean;
+}
+
+let watcher: chokidar.FSWatcher | null = null;
 let ready = false;
 const sep = Path.sep;
 
@@ -330,9 +344,9 @@ const sep = Path.sep;
  * @param { Object } options 配置
  * @param { boolean } options.showDeleted 是否展示对已删除文件引用的文件列表
  */
-function watch(options) {
+export function watch(options?: PluginOptions) {
   // 文件新增时
-  function addFileListener(path) {
+  function addFileListener(path: string) {
     // 过滤copy文件
     if (path.includes('copy')) return;
     if (ready) {
@@ -340,9 +354,9 @@ function watch(options) {
     }
   }
   // 删除文件时，需要把文件里所有的用例删掉
-  function fileRemovedListener(path) {
+  function fileRemovedListener(path: string) {
     parseAndCreate(path);
-    options.showDeleted && findImportFile(path);
+    options?.showDeleted && findImportFile(path);
   }
   if (!watcher) {
     // 监听assets文件夹
@@ -350,14 +364,17 @@ function watch(options) {
   }
   watcher
     .on('add', addFileListener)
+    // .on('addDir', addDirecotryListener)
+    // .on('change', fileChangeListener)
     .on('unlink', fileRemovedListener)
+    // .on('unlinkDir', directoryRemovedListener)
     .on('error', function (error) {
       console.log();
       console.log(`${chalk.bgRed.white(' ERROR ')} ${chalk.red(`Error happened ${error}`)}`);
     })
     .on('ready', function () {
       console.log();
-      console.log(`${chalk.bgGreen.black(' SUCCESS ')} ${chalk.cyan('检测assets文件夹中')}`);
+      console.log(`${chalk.bgGreen.black(' shared ')} ${chalk.cyan('检测assets文件夹中')}`);
       // 全量生成一遍shared文件
       run();
       ready = true;
@@ -368,22 +385,17 @@ function watch(options) {
  * @description 解析目标路径，只更新目标路径的shared.ts
  * @param {string} path 新增、删除的文件路径
  */
-function parseAndCreate(path) {
+function parseAndCreate(path: string) {
   // 只监听ts文件(不管图片)  排除shared.ts(否则自动生成后会再次触发add hook) 组件只关心components/xx/index.ts
   const winMatch = /assets\\component(s)?\\[a-zA-Z]*\\index.ts/g;
   const unixMatch = /assets\/component(s)?\/[a-zA-Z]*\/index.ts/g;
   const componentMatch = sep == '/' ? unixMatch : winMatch; // match不到是null
   if ((path.endsWith('.ts') && !path.endsWith('shared.ts')) || path.match(componentMatch)) {
     // 找到当前的assets目录
-    const assetsParent = path.match(/.*assets/)[0];
-    run([assetsParent]);
+    const assetsParent = path.match(/.*assets/)?.[0];
+    assetsParent && run([assetsParent]);
   }
 }
-
-module.exports = {
-  watch,
-};
-
 ```
 
 #### vite插件
@@ -397,19 +409,21 @@ module.exports = {
 ```ts
 // vite-plugin-shared.ts
 import { Plugin } from 'vite';
-import { watch } from '../node/watch';
+import { PluginOptions, watch } from './watch';
 
-export function vitePluginShared(): Plugin {
+export function vitePluginShared(options?: PluginOptions): Plugin {
   return {
     name: 'vite-plugin-shared',
     buildStart() {
-      watch({
-        showDeleted: true,
-      });
+      watch(options);
     },
     apply: 'serve',
   };
 }
+
+export default {
+  vitePluginShared,
+};
 ```
 
 接下来只需要在`vite.config.ts`中引入使用即可
@@ -438,7 +452,10 @@ export default defineConfig(({ mode }) => ({
 
   我们目前这个代码是放在了项目的根目录中(因为还在`beta`阶段)，因此后续工具代码更新成为了一个大问题
 
-- [ ] 自己实现文件监听系统的重命名事件，并实现对文件中的引用命名自动修改(类似volar插件的功能)![image-20230227154033391](https://raw.githubusercontent.com/GauharChan/Picture-bed/main/img/image-20230227154033391.png)
+- [ ] 自己实现文件监听系统的重命名事件，并实现对文件中的引用命名自动修改(类似volar插件的功能)
+
+
+ ![image-20230227154033391](https://raw.githubusercontent.com/GauharChan/Picture-bed/main/img/image-20230227154033391.png)
 
   目前有个痛点是，我们抛出的成员名称是以`文件夹+文件名`命名的，`assets`原有的`ts`文件一旦重命名，那么成员的名称将会变更，同时页面中的引用需要我们手动更改
 
