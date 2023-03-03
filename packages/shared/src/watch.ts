@@ -7,24 +7,12 @@ import Path from 'node:path';
 /** 插件配置 */
 export interface PluginOptions {
   /** 是否展示对已删除文件引用的文件列表 */
-  showDeleted: boolean;
+  showDeleted?: boolean;
 }
 
 let watcher: chokidar.FSWatcher | null = null;
 let ready = false;
 const sep = Path.sep;
-
-console.log(
-  'run, getAssetsSet, chalk',
-  run,
-  getAssetsSet,
-  chalk,
-  watcher,
-  ready,
-  sep,
-  findImportFile,
-  parseAndCreate
-);
 
 /**
  * @author: gauharchan

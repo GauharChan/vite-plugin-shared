@@ -1,5 +1,5 @@
 /**
- * @author 陈国华 gauharchan
+ * @author gauharchan
  * @description 遍历views下的assets文件夹，生成各自模块资源的统一出口shared.ts
  */
 
