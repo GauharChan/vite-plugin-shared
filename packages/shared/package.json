@@ -1,0 +1,45 @@
+{
+  "name": "@gauhar/vite-plugin-shared",
+  "version": "1.0.0-beta",
+  "description": "一款针对assets目录规范，自动生成出口shared.ts的工具",
+  "author": "Gauhar Chan",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild && pnpm run patch-cjs",
+    "patch-cjs": "tsx ../../scripts/patchCJS.ts"
+  },
+  "devDependencies": {
+    "@jridgewell/gen-mapping": "^0.3.2",
+    "@jridgewell/trace-mapping": "^0.3.17",
+    "debug": "^4.3.4",
+    "rollup": "^3.17.2",
+    "slash": "^5.0.0",
+    "source-map": "^0.6.1",
+    "vue": "^3.2.45"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GauharChan/vite-plugin-shared.git",
+    "directory": "packages/shared"
+  },
+  "homepage": "https://github.com/GauharChan/vite-plugin-shared/tree/main/packages/shared#readme",
+  "keywords": [
+    "vite",
+    "shared"
+  ],
+  "dependencies": {
+    "chokidar": "^3.5.3"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "name": "@gauhar/vite-plugin-shared-monorepo",
+  "private": true,
+  "engines": {
+    "node": "^14.18.0 || >=16.0.0"
+  },
+  "homepage": "https://github.com/GauharChan/vite-plugin-shared",
+  "keywords": [
+    "shared",
+    "vite",
+    "vue"
+  ],
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "format": "prettier --write --cache .",
+    "lint": "eslint --cache .",
+    "build": "pnpm -r --filter='./packages/*' run build",
+    "dev": "pnpm -r --parallel --filter='./packages/*' run dev"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.12",
+    "@types/node": "^18.14.2",
+    "@types/qs": "^6.9.7",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
+    "@typescript-eslint/parser": "^4.29.2",
+    "@vitejs/plugin-vue": "^1.4.0",
+    "@vitejs/plugin-vue-jsx": "^1.1.7",
+    "@vue/compiler-sfc": "^3.2.4",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-define-config": "^1.0.9",
+    "eslint-plugin-jest": "^24.4.0",
+    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-vue": "^7.16.0",
+    "picocolors": "^1.0.0",
+    "pnpm": "^7.21.0",
+    "prettier": "^2.3.2",
+    "rimraf": "^3.0.2",
+    "rollup": "^3.17.2",
+    "rollup-plugin-license": "^3.0.1",
+    "ts-node": "^10.2.0",
+    "tsx": "^3.12.3",
+    "typescript": "^4.2.3",
+    "unbuild": "^1.1.2",
+    "vite": "^4.1.4",
+    "vue-eslint-parser": "^7.6.0"
+  },
+  "packageManager": "pnpm@7.21.0"
+}
