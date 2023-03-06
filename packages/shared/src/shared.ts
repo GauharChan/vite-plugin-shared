@@ -6,7 +6,6 @@
 import ChildProcess from 'node:child_process';
 import chalk from 'chalk';
 import fs from 'node:fs';
-import os from 'node:os';
 import Path from 'node:path';
 
 export interface AssetsFile {
@@ -17,8 +16,6 @@ export interface AssetsFile {
 const sep = Path.sep;
 /** 最终生成的shared.ts文件集合 */
 const sharedList = new Set();
-/** 每个系统识别的可执行文件类型不一样，Windows下识别为sh(并且要使用bash终端)，Mac下识别为node */
-const platform = os.platform() === 'win32' ? 'sh' : 'node';
 /** 项目根目录 */
 const dirName = process.cwd();
 
@@ -174,7 +171,7 @@ export function run(dirs: string[] | Set<string> = getAssetsSet()) {
   const fileUrls = Array.from(sharedList).join(' ');
   // eslint 修复
   try {
-    ChildProcess.execSync(`${platform} ./node_modules/.bin/eslint ${fileUrls} --fix`);
+    ChildProcess.execSync(`eslint ${fileUrls} --fix`);
     console.log(
       `${chalk.bgGreen.black(' SUCCESS ')} ${chalk.cyan(
         `生成了${sharedList.size}个文件，并已经修复好Eslint`
