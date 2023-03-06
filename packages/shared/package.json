@@ -1,6 +1,6 @@
 {
-  "name": "@gauhar/vite-plugin-shared",
-  "version": "1.0.0-beta",
+  "name": "vite-plugin-shared",
+  "version": "1.0.3-beta",
   "description": "一款针对assets目录规范，自动生成出口shared.ts的工具",
   "author": "Gauhar Chan",
   "files": [
@@ -34,12 +34,13 @@
     "url": "git+https://github.com/GauharChan/vite-plugin-shared.git",
     "directory": "packages/shared"
   },
-  "homepage": "https://github.com/GauharChan/vite-plugin-shared/tree/main/packages/shared#readme",
+  "homepage": "https://github.com/GauharChan/vite-plugin-shared/tree/master/packages/shared#readme",
   "keywords": [
     "vite",
     "shared"
   ],
   "dependencies": {
+    "chalk": "4.1.2",
     "chokidar": "^3.5.3"
   }
 }

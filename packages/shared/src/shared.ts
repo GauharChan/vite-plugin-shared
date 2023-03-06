@@ -19,6 +19,8 @@ const sep = Path.sep;
 const sharedList = new Set();
 /** 每个系统识别的可执行文件类型不一样，Windows下识别为sh(并且要使用bash终端)，Mac下识别为node */
 const platform = os.platform() === 'win32' ? 'sh' : 'node';
+/** 项目根目录 */
+const dirName = process.cwd();
 
 /**
  * @author: gauharchan
@@ -26,7 +28,7 @@ const platform = os.platform() === 'win32' ? 'sh' : 'node';
  * @param {string} path 默认是遍历views
  */
 export function getAssetsSet(
-  path = `${__dirname}/../src/views`,
+  path = Path.resolve(dirName, 'src/views'),
   pathSet = new Set<string>()
 ): Set<string> {
   const dirArr = fs.readdirSync(path);
@@ -149,7 +151,7 @@ function getExportName(parentPath: string, fileName: string) {
 /** Windows系统错误提示 */
 function printWindowsTip() {
   console.log();
-  console.log(chalk.bgKeyword('blue').black('重要的事情说三遍'));
+  console.log(chalk.bgBlue.black('重要的事情说三遍'));
   Array.from({ length: 3 }).forEach(() => {
     console.log(
       `${chalk.bgRed.white(' ERROR ')} ${chalk.red(

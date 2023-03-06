@@ -446,6 +446,14 @@ export default defineConfig(({ mode }) => ({
 
 现在我们的`shared工具`就会在正常启动项目的时候运行啦，没有配置的心智负担了
 
+### 发包注意事项
+
+- 发包后`__dirname`指向的是`node_modules/xxx/vite-plugin-shared/dist`；因此代码中使用`process.cwd()`获取终端运行路径，因为我们是在起`serve`的时候运行
+- `chalk`依赖的问题
+  - 直接使用`node`的`chalk`，会存在相关方法不存在的情况
+  - 使用`pnpm`安装，要注意版本，因为`chalk5.x`开始是`ESM`，推荐使用`4.1.2`
+- 每次发包要修改`version`
+
 ### future feature
 
 - [ ] 建立`npm`规范的仓库，最终集合在私服来解决更新的问题
