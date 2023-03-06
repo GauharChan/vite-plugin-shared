@@ -23,13 +23,10 @@ assets文件夹，可以是针对大模块、某个端的**公共资源**；也�
 
 大概会是这个样子
 
-![image-20230222172344918](https://raw.githubusercontent.com/GauharChan/Picture-bed/main/img/image-20230222172344918.png)
+![image-20230306152413035](https://raw.githubusercontent.com/GauharChan/Picture-bed/main/img/image-20230306152413035.png)
 
-有个`statistics`模块，他有家长端和教师端
 
-- `statistics/assets` 这里存放着家长端和教师端公共的资源 比如一个业务组件
-- `statistics/parent/assets` 家长端的资源
-- `statistics/teacher/assets` 教师端的资源
+
 
 这样的目录用起来挺清晰的，但同时带来一个痛点是层级太深了，这主要是体现在页面引用，编写路径的时候，增加了开发的心智负担。
 
@@ -332,6 +329,8 @@ import Path from 'node:path';
 export interface PluginOptions {
   /** 是否展示对已删除文件引用的文件列表 */
   showDeleted?: boolean;
+  /** 页面文件夹路径，一般是src/views、src/pages */
+  source?: string;
 }
 
 let watcher: chokidar.FSWatcher | null = null;
@@ -360,7 +359,7 @@ export function watch(options?: PluginOptions) {
   }
   if (!watcher) {
     // 监听assets文件夹
-    watcher = chokidar.watch(Array.from(getAssetsSet()));
+    watcher = chokidar.watch(Array.from(getAssetsSet(options?.source)));
   }
   watcher
     .on('add', addFileListener)
@@ -376,7 +375,7 @@ export function watch(options?: PluginOptions) {
       console.log();
       console.log(`${chalk.bgGreen.black(' shared ')} ${chalk.cyan('检测assets文件夹中')}`);
       // 全量生成一遍shared文件
-      run();
+      run(getAssetsSet(options?.source));
       ready = true;
     });
 }
@@ -396,6 +395,14 @@ function parseAndCreate(path: string) {
     assetsParent && run([assetsParent]);
   }
 }
+
+/**
+ * @author: gauharchan
+ * @description 找到对 当前删除(重命名)的文件 有引用的所有文件
+ * @param {string} path 当前删除(重命名)的文件路径
+ */
+function findImportFile(_path: string) {}
+
 ```
 
 #### vite插件
@@ -456,7 +463,7 @@ export default defineConfig(({ mode }) => ({
 
 ### future feature
 
-- [ ] 建立`npm`规范的仓库，最终集合在私服来解决更新的问题
+- [x] 建立`npm`规范的仓库，最终集合在私服来解决更新的问题
 
   我们目前这个代码是放在了项目的根目录中(因为还在`beta`阶段)，因此后续工具代码更新成为了一个大问题
 
