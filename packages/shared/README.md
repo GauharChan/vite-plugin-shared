@@ -99,8 +99,6 @@ import Path from 'node:path';
 const sep = Path.sep;
 /** 最终生成的shared.ts文件集合 */
 const sharedList = new Set();
-/** 每个系统识别的可执行文件类型不一样，Windows下识别为sh(并且要使用bash终端)，Mac下识别为node */
-const platform = os.platform() === 'win32' ? 'sh' : 'node';
 ```
 
 #### 1.找到`views`文件夹下所有的`assets`文件夹路径
@@ -116,7 +114,7 @@ const platform = os.platform() === 'win32' ? 'sh' : 'node';
  * @param {string} path 默认是遍历views
  */
 export function getAssetsSet(
-  path = `${__dirname}/../src/views`,
+  path = Path.resolve(dirName, 'src/views'),
   pathSet = new Set<string>()
 ): Set<string> {
   const dirArr = fs.readdirSync(path);
@@ -269,7 +267,6 @@ export function createShared(targetPath: string) {
 
 - 接收路径并调用`createShared`创建`shared`文件，同时收集好路径`sharedList`
 - 执行`eslint`命令修复
-- 同时有个点需要注意，在`Windows`下`node_moudles`的可执行文件识别为`sh`，但是`Windows`的`PowerShell`是不能运行`sh`的，所以我们这里做了一个终端提示
 
 ```js
 /**
@@ -283,30 +280,15 @@ export function run(dirs: string[] | Set<string> = getAssetsSet()) {
   const fileUrls = Array.from(sharedList).join(' ');
   // eslint 修复
   try {
-    ChildProcess.execSync(`${platform} ./node_modules/.bin/eslint ${fileUrls} --fix`);
+    ChildProcess.execSync(`eslint ${fileUrls} --fix`);
     console.log(
       `${chalk.bgGreen.black(' SUCCESS ')} ${chalk.cyan(
         `生成了${sharedList.size}个文件，并已经修复好Eslint`
       )}`
     );
   } catch (error) {
-    printWindowsTip();
+    console.log(`${chalk.bgRed.white(' ERROR ')} ${chalk.red('eslint 修复失败')}`);
   }
-}
-
-/** Windows系统错误提示 */
-function printWindowsTip() {
-  console.log();
-  console.log(chalk.bgKeyword('blue').black('重要的事情说三遍'));
-  Array.from({ length: 3 }).forEach(() => {
-    console.log(
-      `${chalk.bgRed.white(' ERROR ')} ${chalk.red(
-        `Eslint修复失败，Windows系统请使用 ${chalk.bgBlue.blueBright(
-          `${chalk.bold('bash终端')}`
-        )} 运行命令，否则请手动修复`
-      )}`
-    );
-  });
 }
 ```
 
@@ -437,7 +419,7 @@ export default {
 
 ```ts
 // ...
-import { vitePluginShared } from './plugins/vite-plugin-shared';
+import { vitePluginShared } from 'vite-plugin-shared';
 export default defineConfig(({ mode }) => ({
   base: '',
   plugins: [
@@ -445,13 +427,22 @@ export default defineConfig(({ mode }) => ({
     Components({
       resolvers: [VantResolver()],
     }),
-    vitePluginShared(),
+    vitePluginShared({...}),
   ],
   // ...
  }));
 ```
 
 现在我们的`shared工具`就会在正常启动项目的时候运行啦，没有配置的心智负担了
+
+##### 插件配置参数
+
+| 参数名      | 描述                                       | 类型          |
+| ----------- | ------------------------------------------ | ------------- |
+| source      | 页面文件夹路径，一般是src/views、src/pages | string[可选]  |
+| showDeleted | 是否展示对已删除文件引用的文件列表         | boolean[可选] |
+
+
 
 ### 发包注意事项
 

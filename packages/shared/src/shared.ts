@@ -145,21 +145,6 @@ function getExportName(parentPath: string, fileName: string) {
   return `${firstName}${arr.join('')}`;
 }
 
-/** Windows系统错误提示 */
-function printWindowsTip() {
-  console.log();
-  console.log(chalk.bgBlue.black('重要的事情说三遍'));
-  Array.from({ length: 3 }).forEach(() => {
-    console.log(
-      `${chalk.bgRed.white(' ERROR ')} ${chalk.red(
-        `Eslint修复失败，Windows系统请使用 ${chalk.bgBlue.blueBright(
-          `${chalk.bold('bash终端')}`
-        )} 运行命令，否则请手动修复`
-      )}`
-    );
-  });
-}
-
 /**
  * @author: gauharchan
  * @description 执行函数
@@ -178,6 +163,6 @@ export function run(dirs: string[] | Set<string> = getAssetsSet()) {
       )}`
     );
   } catch (error) {
-    printWindowsTip();
+    console.log(`${chalk.bgRed.white(' ERROR ')} ${chalk.red('eslint 修复失败')}`);
   }
 }
