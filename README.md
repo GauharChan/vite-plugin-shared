@@ -16,7 +16,7 @@ pnpm i vite-plugin-shared -D
 
 ```ts
 // ...
-import { vitePluginShared } from './plugins/vite-plugin-shared';
+import { vitePluginShared } from 'vite-plugin-shared';
 export default defineConfig(({ mode }) => ({
   base: '',
   plugins: [
@@ -27,6 +27,5 @@ export default defineConfig(({ mode }) => ({
     vitePluginShared(),
   ],
   // ...
- }));
+}));
 ```
-
