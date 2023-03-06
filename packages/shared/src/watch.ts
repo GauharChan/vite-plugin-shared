@@ -8,6 +8,8 @@ import Path from 'node:path';
 export interface PluginOptions {
   /** 是否展示对已删除文件引用的文件列表 */
   showDeleted?: boolean;
+  /** 页面文件夹路径，一般是src/views、src/pages */
+  source?: string;
 }
 
 let watcher: chokidar.FSWatcher | null = null;
@@ -36,7 +38,7 @@ export function watch(options?: PluginOptions) {
   }
   if (!watcher) {
     // 监听assets文件夹
-    watcher = chokidar.watch(Array.from(getAssetsSet()));
+    watcher = chokidar.watch(Array.from(getAssetsSet(options?.source)));
   }
   watcher
     .on('add', addFileListener)
@@ -52,7 +54,7 @@ export function watch(options?: PluginOptions) {
       console.log();
       console.log(`${chalk.bgGreen.black(' shared ')} ${chalk.cyan('检测assets文件夹中')}`);
       // 全量生成一遍shared文件
-      run();
+      run(getAssetsSet(options?.source));
       ready = true;
     });
 }
