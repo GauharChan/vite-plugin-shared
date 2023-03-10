@@ -1,3 +1,9 @@
+## install
+
+```sh
+pnpm i vite-plugin-shared -D
+```
+
 ## 需求背景
 
 现有的目录规范如下
