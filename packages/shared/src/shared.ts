@@ -54,9 +54,11 @@ export function createShared(targetPath: string) {
     targetPath,
     assetsModules.filter((file) => !file.endsWith('.ts')) // 剔除shared.ts
   );
-  // 写入代码内容
-  fs.writeFileSync(`${targetPath}/shared.ts`, getContent(allTs), 'utf-8');
-  sharedList.add(`${targetPath}/shared.ts`);
+  if (allTs.size) {
+    // 写入代码内容
+    fs.writeFileSync(`${targetPath}/shared.ts`, getContent(allTs), 'utf-8');
+    sharedList.add(`${targetPath}/shared.ts`);
+  }
 }
 
 /**
