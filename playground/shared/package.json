@@ -17,6 +17,9 @@
     "pug": "^3.0.2",
     "sass": "^1.57.1",
     "stylus": "^0.59.0",
+    "@vitejs/plugin-vue": "^4.0.0",
+    "@vitejs/plugin-vue-jsx": "^1.1.7",
+    "vite": "^4.0.0",
     "vite-plugin-shared": "workspace:*"
   }
 }
