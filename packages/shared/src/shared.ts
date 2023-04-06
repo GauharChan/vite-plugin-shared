@@ -52,7 +52,7 @@ export function createShared(targetPath: string) {
   // 遍历获取所有ts文件
   const allTs = recursion(
     targetPath,
-    assetsModules.filter((file) => !file.endsWith('.ts')) // 剔除shared.ts
+    assetsModules.filter((file) => !file.endsWith('.ts') || !file.endsWith('.tsx')) // 剔除shared.ts
   );
   if (allTs.size) {
     // 写入代码内容
@@ -100,7 +100,7 @@ function recursion(
         // 递归遍历解析文件夹
         recursion(path, dir, pathSet);
       }
-    } else if (item.endsWith('.ts')) {
+    } else if (item.endsWith('.ts') || item.endsWith('.tsx')) {
       // && stat.size > 0 stat.size 过滤空文件
       // ts文件，直接记录
       pathSet.add({
