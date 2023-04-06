@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react",
     // esbuild transpile should ignore this
     "target": "ES5"
   },

@@ -12,10 +12,10 @@ module.exports = defineConfig({
     parser: '@typescript-eslint/parser',
     ecmaVersion: 2022,
     sourceType: 'module',
-    // jsxPragma: "React",
-    // ecmaFeatures: {
-    //   jsx: true,
-    // },
+    jsxPragma: 'React',
+    ecmaFeatures: {
+      jsx: true,
+    },
   },
   extends: ['prettier', 'plugin:prettier/recommended'],
   // plugins: ['prettier'],
