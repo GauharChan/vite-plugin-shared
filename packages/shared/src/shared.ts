@@ -52,7 +52,7 @@ export function createShared(targetPath: string) {
   // 遍历获取所有ts文件
   const allTs = recursion(
     targetPath,
-    assetsModules.filter((file) => !file.endsWith('.ts') || !file.endsWith('.tsx')) // 剔除shared.ts
+    assetsModules.filter((file) => !file.endsWith('.ts')) // 剔除shared.ts
   );
   if (allTs.size) {
     // 写入代码内容
